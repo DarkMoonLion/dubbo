@@ -53,7 +53,6 @@ import static com.alibaba.dubbo.common.Constants.QOS_PORT;
 
 /**
  * RegistryProtocol
- *
  */
 public class RegistryProtocol implements Protocol {
 
@@ -128,13 +127,13 @@ public class RegistryProtocol implements Protocol {
         //export invoker
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker);
 
-        URL registryUrl = getRegistryUrl(originInvoker);
+        URL registryUrl = getRegistryUrl(originInvoker);//获取完整的注册url
 
         //registry provider
-        final Registry registry = getRegistry(originInvoker);
-        final URL registedProviderUrl = getRegistedProviderUrl(originInvoker);
+        final Registry registry = getRegistry(originInvoker);//拿到注册url,再根据这个url通过工厂拿到Registry
+        final URL registedProviderUrl = getRegistedProviderUrl(originInvoker);//过滤一些url参数
 
-        //to judge to delay publish whether or not
+        //to judge to delay publish whether or not  判断是否延迟发布
         boolean register = registedProviderUrl.getParameter("register", true);
 
         ProviderConsumerRegTable.registerProvider(originInvoker, registryUrl, registedProviderUrl);
@@ -230,9 +229,7 @@ public class RegistryProtocol implements Protocol {
     }
 
     private URL getSubscribedOverrideUrl(URL registedProviderUrl) {
-        return registedProviderUrl.setProtocol(Constants.PROVIDER_PROTOCOL)
-                .addParameters(Constants.CATEGORY_KEY, Constants.CONFIGURATORS_CATEGORY,
-                        Constants.CHECK_KEY, String.valueOf(false));
+        return registedProviderUrl.setProtocol(Constants.PROVIDER_PROTOCOL).addParameters(Constants.CATEGORY_KEY, Constants.CONFIGURATORS_CATEGORY, Constants.CHECK_KEY, String.valueOf(false));
     }
 
     /**

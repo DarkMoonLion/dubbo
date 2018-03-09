@@ -441,7 +441,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 map.put("revision", revision);
             }
 
-            String[] methods = Wrapper.getWrapper(interfaceClass).getMethodNames();
+            String[] methods = Wrapper.getWrapper(interfaceClass).getMethodNames();//解析出接口中的方法名称数组
             if (methods.length == 0) {
                 logger.warn("NO method found in service interface " + interfaceClass.getName());
                 map.put("methods", Constants.ANY_VALUE);
@@ -466,14 +466,12 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             contextPath = provider.getContextpath();
         }
 
-        String host = this.findConfigedHosts(protocolConfig, registryURLs, map);
-        Integer port = this.findConfigedPorts(protocolConfig, name, map);
-        URL url = new URL(name, host, port, (contextPath == null || contextPath.length() == 0 ? "" : contextPath + "/") + path, map);
+        String host = this.findConfigedHosts(protocolConfig, registryURLs, map);//找到配置的注册地址
+        Integer port = this.findConfigedPorts(protocolConfig, name, map);//找到配置的端口号
+        URL url = new URL(name, host, port, (contextPath == null || contextPath.length() == 0 ? "" : contextPath + "/") + path, map);//供外部调用的url
 
-        if (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
-                .hasExtension(url.getProtocol())) {
-            url = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
-                    .getExtension(url.getProtocol()).getConfigurator(url).configure(url);
+        if (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class).hasExtension(url.getProtocol())) {
+            url = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class).getExtension(url.getProtocol()).getConfigurator(url).configure(url);
         }
 
         String scope = url.getParameter(Constants.SCOPE_KEY);
@@ -520,13 +518,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void exportLocal(URL url) {
         if (!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
-            URL local = URL.valueOf(url.toFullString())
-                    .setProtocol(Constants.LOCAL_PROTOCOL)
-                    .setHost(LOCALHOST)
-                    .setPort(0);
+            URL local = URL.valueOf(url.toFullString()).setProtocol(Constants.LOCAL_PROTOCOL).setHost(LOCALHOST).setPort(0);
             ServiceClassHolder.getInstance().pushServiceClass(getServiceClass(ref));
-            Exporter<?> exporter = protocol.export(
-                    proxyFactory.getInvoker(ref, (Class) interfaceClass, local));
+            Exporter<?> exporter = protocol.export(proxyFactory.getInvoker(ref, (Class) interfaceClass, local));
             exporters.add(exporter);
             logger.info("Export dubbo service " + interfaceClass.getName() + " to local registry");
         }

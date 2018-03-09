@@ -189,11 +189,7 @@ public abstract class AbstractConfig implements Serializable {
         for (Method method : methods) {
             try {
                 String name = method.getName();
-                if ((name.startsWith("get") || name.startsWith("is"))
-                        && !"getClass".equals(name)
-                        && Modifier.isPublic(method.getModifiers())
-                        && method.getParameterTypes().length == 0
-                        && isPrimitive(method.getReturnType())) {
+                if ((name.startsWith("get") || name.startsWith("is")) && !"getClass".equals(name) && Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 0 && isPrimitive(method.getReturnType())) {
                     Parameter parameter = method.getAnnotation(Parameter.class);
                     if (method.getReturnType() == Object.class || parameter != null && parameter.excluded()) {
                         continue;
